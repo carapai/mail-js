@@ -1,24 +1,23 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { pdf } from "@react-pdf/renderer";
+import React from "react";
+import { MyDocument } from "./MyDocument";
+import axios from "axios";
 
 function App() {
+  const send = async () => {
+    const blob = await pdf(<MyDocument />).toBlob();
+    const reader = new FileReader();
+    reader.addEventListener("loadend", async () => {
+      const d = reader.result.split("data:application/pdf;base64,");
+       await axios.post("http://localhost:8080/send", {
+        pdf: d[1],
+      });
+    });
+    reader.readAsDataURL(blob);
+  };
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <button onClick={send}>Download</button>
     </div>
   );
 }
